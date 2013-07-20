@@ -2,23 +2,19 @@ using UnityEngine;
 using System.Collections;
 
 public class Unit : MonoBehaviour {
-	public bool selected = false;
+	public int priority = 5;
+	public bool selected = false; //do not use
+	public bool moveToggle = false;
+	public bool attackToggle = false;
+	public bool digToggle = false;
+	protected bool initiated = false;
 
 	// Use this for initialization
 	void Start () {
-	
+		IOManager.initiateUnit(this);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (renderer.isVisible && Input.GetMouseButton(0)) {
-			Vector3 camPos = Camera.mainCamera.WorldToScreenPoint(transform.position);
-			camPos.y = CameraOperator.InvertMouseY(camPos.y);
-			selected = CameraOperator.selection.Contains(camPos);
-		}
-		if (selected)
-			renderer.material.color = Color.red;
-		else
-			renderer.material.color = Color.white;
-	}
-}
+	} 
+} 
