@@ -1,38 +1,60 @@
 using UnityEngine;
 using System.Collections;
 
-class ActionQueue {
+public class ActionQueue {
+
+	protected class ActionNode {
+		public Transform target;
+		public string funcname;
+		public ActionNode next;
+		public ActionNode previous = null;
+
+		public ActionNode(string s, Transform t, ActionNode n) {
+			funcname = s;
+			target = t;
+			next = n;
+		}
+	}
 
 	protected ActionNode head = null;
-	
-	public void push(Vector3 position, string funcname) {
-		ActionNode temp = new ActionNode(position, funcname);
-		temp.next = head;
-		head = temp;
+	protected ActionNode tail = null;
+
+	public bool isEmpty() {
+		
+		if (head == null)
+			return true;
+		return false;
 	}
 
-	public void push(ref MonoBehaviour target, string funcname) {
-		ActionNode temp = new ActionNode(ref target, funcname);
-		temp.next = head;
-		head = temp;
+	public void nuke () {
+		head = tail = null;
 	}
 
-	public void peek (ref Vector3? position, ref MonoBehaviour target, ref string funcname) {
+
+	public void enqueue(string funcname, Transform target) {
+		ActionNode temp = new ActionNode (funcname, target, tail);
+		if (tail != null)
+			tail.previous = temp;
+		tail = temp;
+		if (head == null)
+			head = tail;
+	}
+
+	public void peek(out string funcname, out Transform target) {
 		if (head == null) {
-			position = null;
+			funcname = null;
 			target = null;
 			return;
 		}
-		position = head.position;
+		funcname = head.funcname;
 		target = head.target;
-		funcname = head.action;
 	}
-
-	public void pop (ref Vector3? position, ref MonoBehaviour target, ref string funcname) {
-		peek(ref position, ref target, ref funcname);
-		if (head != null)
-			head = head.next;
+	public void dequeue() {
+		if (head.previous != null) {
+			head = head.previous;
+			head.next = null;
+			return;
+		}
+		head = tail = null;
 	}
 }
-
-

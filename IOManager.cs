@@ -34,7 +34,7 @@ public class IOManager : MonoBehaviour {
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				RaycastHit hit;
 				if (Physics.Raycast(ray, out hit, 100))
-					sendOrder(hit.transform/*.gameObject*/);
+					sendOrder(hit.transform);
 
 
 			}
@@ -116,7 +116,7 @@ public class IOManager : MonoBehaviour {
 
 	protected static void sendOrder (Transform target) {
 		foreach (Unit dude in selectedUnits) {
-			//dude.recieveOrder(currentInstruction, target);
+			dude.recieveOrder(currentInstruction, target);
 		}
 		selectionLock = false;
 		awaitingOrders = false;
@@ -131,5 +131,13 @@ public class IOManager : MonoBehaviour {
 
 	public static float invert(float why) {
 		return Screen.height - why;
+	}
+
+	protected static Transform getTarget () {
+		RaycastHit hit;
+		Ray r = Camera.mainCamera.ScreenPointToRay(Input.mousePosition);
+		if (Physics.Raycast(r, out hit))
+			return hit.transform;
+		return null;
 	}
 }
