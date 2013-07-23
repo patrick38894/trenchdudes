@@ -12,7 +12,6 @@ public class HUD : MonoBehaviour {
 	protected bool moveToggle = false;
 	protected bool digToggle = false;
 	protected Rect bgRect = new Rect (0,0,0,0); 
-	protected CameraOperator cameraoperator = null;
 
 
 	// Use this for initialization
@@ -21,7 +20,6 @@ public class HUD : MonoBehaviour {
 	void Start () {
 		bgRect = new Rect (0, Screen.height/2, Screen.width, Screen.height/2);
 	
-		cameraoperator = GetComponent<CameraOperator>();
 	}
 	
 	// Update is called once per frame
