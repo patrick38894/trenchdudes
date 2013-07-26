@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 class Hexagon : MonoBehaviour {
 	public Triangle [] triangles = new Triangle[6];
-	public Hexagon [] hexagons = new Hexagon[6];
 	public static float diamond = 1f / 2f * (float) Math.Sqrt(3);
 	public static float hourglass = 2f / (float) Math.Sqrt(3);
 	public static float sideLength = 1.0f;
 	public static float sqrt3 = (float) Math.Sqrt(3);
+	protected static Hexagon [] hexarray;
+	public static int xdim = 8;
+	public static int ydim = 8;
 	protected static bool begun = false;
 	
 	public int clock6(int toClock) {
@@ -32,20 +34,25 @@ class Hexagon : MonoBehaviour {
 	public void linkIn () {
 	}
 	
-	protected static Hexagon [] hexarray;
-	public static int xdim = 8;
-	public static int ydim = 8;
-	
 	public void initWrapper() {
 		hexarray = new Hexagon[xdim];
 		hexarray[0] = GetComponent<Hexagon>();
 		init(0, 0);
 	}
+	public void OnMouseDown() {
+		print("clicked");
+		Vector3 position = transform.position;
+		position.x += sqrt3 * sideLength; 
+		GameObject nextHex = Instantiate(this, position, Quaternion.identity) as GameObject;
+	}
 
 	public void init (int x, int y) {
+		//TODO edges of the graph are currently being linked twice, could lead to problems
 		Vector3 position = transform.position;
 		bool isEven = (y%2 ==0);
-		
+		print("here");
+		print (y);
+		print(isEven);
 		if (isEven &&  y!=0) {//link upwards leaning to the right
 			linkTo(0,hexarray[x]);
 			if (x > 0)
@@ -53,9 +60,10 @@ class Hexagon : MonoBehaviour {
 		}
 		else if (! isEven) {
 			linkTo(5,hexarray[x]);
-			if (x < xdim -1) {
+			if (x < xdim -1) 
 				linkTo(0,hexarray[x+1]);
 		}
+		print("stuff that is broken");
 		
 		if (y == ydim-1)
 			if ((isEven && x == xdim-1) || (!isEven && x == 0))
@@ -65,7 +73,7 @@ class Hexagon : MonoBehaviour {
 		else
 			position.x -= sqrt3 * sideLength; 
 		if (x == 0 || x == xdim-1)
-			position.x -= sideLength;
+			position.z -= sideLength;
 
 		GameObject nextHex = Instantiate(this, position, Quaternion.identity) as GameObject;
 		Hexagon next = nextHex.GetComponent<Hexagon>();
@@ -82,7 +90,7 @@ class Hexagon : MonoBehaviour {
 			else
 				linkTo(4,next);
 		}
-		hexarray[x] = hexagons[0];
+		//populate array here
 		if (isEven) {
 			if (x == xdim-1) {
 				next.init(x,y+1);
@@ -97,9 +105,8 @@ class Hexagon : MonoBehaviour {
 		}
 		next.init(x-1,y);
 		return;
-		}
 	}
-	public void Start () {
+	void Start () {
 		if (!begun) {
 			begun = true;
 			initWrapper();
