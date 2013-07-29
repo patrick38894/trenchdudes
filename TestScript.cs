@@ -15,6 +15,6 @@ public class TestScript : MonoBehaviour {
 
 	void OnMouseDown() {
 		print("you clicked the test object");
-		Instantiate(this, transform.position + new Vector3(2.0f,0,0), Quaternion.identity);
+		Transform next = Instantiate(this, transform.position + new Vector3(2.0f,0,0), Quaternion.identity) as Transform;
 	}
 }

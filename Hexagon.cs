@@ -5,7 +5,7 @@ using System.Collections.Generic;
 class Hexagon : MonoBehaviour {
 
 	public Triangle [] triangles = new Triangle[6];
-
+	public static GameObject triangleMesh;
 	public static float diamond = 1f / 2f * (float) Math.Sqrt(3);
 	public static float hourglass = 2f / (float) Math.Sqrt(3);
 	public static float sideLength = 1.0f;
@@ -38,13 +38,14 @@ class Hexagon : MonoBehaviour {
 		for (int i = 0; i < 6; ++i) {
 			Triangle.doubleLink(triangles[i], triangles[clock6(i-1)], diamond);
 			Triangle.doubleLink(triangles[i], triangles[clock6(i+1)], diamond);
-			Triangle.doubleLink(triangles[i], triangles[clock6(i+3), hourglass);
+			Triangle.doubleLink(triangles[i], triangles[clock6(i+3)], hourglass);
 		}
 	}
 
 	public void initWrapper() {
+
 		hexarray = new Hexagon[xdim];
-		hexarray[0] = GetComponent<Hexagon>();
+		hexarray[0] = buffer = GetComponent<Hexagon>();
 		init(0, 0);
 	}
 //	public void OnMouseDown() {
@@ -56,6 +57,7 @@ class Hexagon : MonoBehaviour {
 
 	public void init (int x, int y) {
 		Vector3 position = transform.position;
+		Quaternion rotation = transform.rotation;
 		bool isEven = (y%2 ==0);
 		if (isEven &&  y!=0) {//link upwards leaning to the right
 			linkTo(0,hexarray[x]);
@@ -71,14 +73,22 @@ class Hexagon : MonoBehaviour {
 		if (y == ydim-1)
 			if ((isEven && x == xdim-1) || (!isEven && x == 0))
 				return;
-		if (isEven)
-			position.x += sqrt3 * sideLength; 
-		else
-			position.x -= sqrt3 * sideLength; 
-		if (x == 0 || x == xdim-1)
-			position.z -= sideLength;
+		if (isEven) {
+			if (x == xdim-1)
+				position.x += sqrt3 / 2.0f * sideLength;
+			else
+				position.x += sqrt3 * sideLength;
+		}
+		else {
+			if (x == 0)
+				position.x -= sqrt3 /2.0f * sideLength;
+			else
+				position.x -= sqrt3 * sideLength;
+		}
+		if ((x == 0 && !isEven) || (x == xdim-1 && isEven))
+			position.z -= 1.5f * sideLength;
 
-		GameObject nextHex = Instantiate(this, position, Quaternion.identity) as GameObject;
+		Transform nextHex = Instantiate(transform, position, rotation) as Transform;
 		Hexagon next = nextHex.GetComponent<Hexagon>();
 
 		if (isEven) {
@@ -99,12 +109,14 @@ class Hexagon : MonoBehaviour {
 				hexarray[x-1] = buffer;
 			else
 				hexarray[x] = buffer;
+			if (y == 0 && x == xdim-1)
+				hexarray[x] = GetComponent<Hexagon>();
 		}
 		else {
 			if (x == xdim-1)
 				hexarray[x] = buffer;
 			else
-				hexarray[x+1];
+				hexarray[x+1] = buffer;
 		
 		}
 		buffer = this;
@@ -125,8 +137,24 @@ class Hexagon : MonoBehaviour {
 		return;
 	}
 	void Awake () {
-		for (int i = 0; i < 6; ++i)
-			triangles[i] = new triangle;
+		if (triangleMesh == null)
+			triangleMesh = GameObject.Find("Triangle");
+		Color temp = triangleMesh.renderer.material.color;
+		temp.a = 0f;
+		triangleMesh.renderer.material.color = temp;
+		for (int i = 0; i < 6; ++i) {
+			triangles[i] = new Triangle();
+			Vector3 position = transform.position;
+			//position.x -= (float) (sideLength /sqrt3 * Math.Cos(60));
+			//position.z += (float) (sideLength / sqrt3 * Math.Sin(30 * i +15));
+			triangles[i].transform = Instantiate(triangleMesh.transform, position, Quaternion.identity) as Transform;
+			triangles[i].transform.Rotate(Vector3.up, 60 * (i+1));
+			position = triangles[i].transform.position;
+			position.z += (float) (Math.Cos (Math.PI * (i+0.5) / 3) / sqrt3 );
+			position.x += (float) (Math.Sin (Math.PI * (i+0.5) /3) / sqrt3);
+			position.y += 0.05f;
+			triangles[i].transform.position = position;
+		}
 	}
 	void Start () {
 		if (!begun) {

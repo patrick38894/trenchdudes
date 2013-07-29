@@ -15,7 +15,8 @@ public class IOManager : MonoBehaviour {
 	protected static string currentInstruction = "zilch" ; //units will take a string as an order
 	protected static int HUDONYAxis; //not a real const because of window resizing - the line where the HUD meets the viewport
 	protected static Vector3 startClick = - Vector3.one; //the start of the selectionbox -vector3.one is the null
-	
+	public float cameraSpeed = 10;
+	public float cameraScrollSpeed = 25;
 
 	protected HUD hud; //this guy processes all the button stuff
 
@@ -66,6 +67,7 @@ public class IOManager : MonoBehaviour {
 			dude.renderer.material.color = Color.blue;
 		foreach (Unit dude in selectedUnits)
 			dude.renderer.material.color = Color.red;
+		moveCamera();
 		
 	}
 
@@ -139,5 +141,18 @@ public class IOManager : MonoBehaviour {
 		if (Physics.Raycast(r, out hit))
 			return hit.transform;
 		return null;
+	}
+	
+	protected void moveCamera() {
+		float xAxisValue = Input.GetAxis("Horizontal");
+	    float zAxisValue = Input.GetAxis("Vertical");
+	    Vector3 pos =transform.position;
+		pos.x += Time.deltaTime * xAxisValue * cameraSpeed;
+		pos.z += Time.deltaTime * zAxisValue * cameraSpeed;
+		if (Input.GetAxis("Mouse ScrollWheel") > 0)
+			pos.y -= Time.deltaTime * cameraScrollSpeed;
+		else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+			pos.y += Time.deltaTime * cameraScrollSpeed;
+		transform.position = pos;
 	}
 }

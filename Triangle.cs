@@ -21,7 +21,7 @@ class Triangle {
 	public void link(Triangle src, float dist){
 		adjacent.Add(new Edge(src, dist));
 	}
-	Transform transform;
+	public Transform transform;
 	List<Edge> adjacent = new List<Edge> ();
 }
 

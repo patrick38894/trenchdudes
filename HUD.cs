@@ -11,15 +11,23 @@ public class HUD : MonoBehaviour {
 	protected bool attackToggle = false;
 	protected bool moveToggle = false;
 	protected bool digToggle = false;
-	protected Rect bgRect = new Rect (0,0,0,0); 
+	protected Rect bgRect = new Rect (0,0,0,0);
+	protected Rect buttonRect = new Rect (0,0,0,0);
+	protected int buttonSize;
+	protected int buttonPosY;
+	protected int buttonPosX;
+	protected int buttonOffset;
 
 
 	// Use this for initialization
 	void awake() {
 	}
 	void Start () {
-		bgRect = new Rect (0, Screen.height/2, Screen.width, Screen.height/2);
-	
+		bgRect = new Rect (0, Screen.height *3/4, Screen.width, Screen.height/4);
+		buttonPosX = Screen.width / 18;
+		buttonPosY = Screen.height * 26/32;
+		buttonOffset = Screen.width /9;
+		buttonSize = Screen.width /14;
 	}
 	
 	// Update is called once per frame
@@ -28,35 +36,31 @@ public class HUD : MonoBehaviour {
 	}
 
 	void OnGUI() {
-		//TODO scaling
-		int buttonPosX = 128;
-		int buttonPosY = Screen.height - 128 -64;
+		
 		GUI.skin = skin;
-		int buttonOffset = 128 + 128;
-
-		//this should go into "on window resize" if that is a real thing;
 		GUI.DrawTexture (bgRect, background);
+		int temp = buttonPosX;
 
 		if (attackToggle) {
-			if (GUI.Button(new Rect(buttonPosX, buttonPosY, 128, 128), attack)) {
+			if (GUI.Button(new Rect(temp, buttonPosY, buttonSize, buttonSize), attack)) {
 				//do something
 				IOManager.processOrder("attack");
 			}
-			buttonPosX += buttonOffset;
+			temp += buttonOffset;
 		}
 		if (moveToggle) {
-			if (GUI.Button(new Rect(buttonPosX, buttonPosY, 128, 128), move)) {
+			if (GUI.Button(new Rect(temp, buttonPosY, buttonSize, buttonSize), move)) {
 				//do something
 				IOManager.processOrder("move");
 			}
-			buttonPosX += buttonOffset;
+			temp += buttonOffset;
 		}
 		if (digToggle) {
-			if (GUI.Button(new Rect(buttonPosX, buttonPosY, 128, 128), dig)) {
+			if (GUI.Button(new Rect(temp, buttonPosY, buttonSize, buttonSize), dig)) {
 				//do something
 				IOManager.processOrder("dig");
 			}
-			buttonPosX += buttonOffset;
+			temp += buttonOffset;
 		}
 
 	}
