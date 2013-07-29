@@ -3,7 +3,9 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 class Hexagon : MonoBehaviour {
+
 	public Triangle [] triangles = new Triangle[6];
+
 	public static float diamond = 1f / 2f * (float) Math.Sqrt(3);
 	public static float hourglass = 2f / (float) Math.Sqrt(3);
 	public static float sideLength = 1.0f;
@@ -12,6 +14,7 @@ class Hexagon : MonoBehaviour {
 	public static int xdim = 8;
 	public static int ydim = 8;
 	protected static bool begun = false;
+	protected static Hexagon buffer;
 	
 	public int clock6(int toClock) {
 		if (toClock >= 0)
@@ -32,27 +35,28 @@ class Hexagon : MonoBehaviour {
 	}
 
 	public void linkIn () {
+		for (int i = 0; i < 6; ++i) {
+			Triangle.doubleLink(triangles[i], triangles[clock6(i-1)], diamond);
+			Triangle.doubleLink(triangles[i], triangles[clock6(i+1)], diamond);
+			Triangle.doubleLink(triangles[i], triangles[clock6(i+3), hourglass);
+		}
 	}
-	
+
 	public void initWrapper() {
 		hexarray = new Hexagon[xdim];
 		hexarray[0] = GetComponent<Hexagon>();
 		init(0, 0);
 	}
-	public void OnMouseDown() {
-		print("clicked");
-		Vector3 position = transform.position;
-		position.x += sqrt3 * sideLength; 
-		GameObject nextHex = Instantiate(this, position, Quaternion.identity) as GameObject;
-	}
+//	public void OnMouseDown() {
+//		print("clicked");
+//		Vector3 position = transform.position;
+//		position.x += sqrt3 * sideLength; 
+//		GameObject nextHex = Instantiate(this, position, Quaternion.identity) as GameObject;
+//	}
 
 	public void init (int x, int y) {
-		//TODO edges of the graph are currently being linked twice, could lead to problems
 		Vector3 position = transform.position;
 		bool isEven = (y%2 ==0);
-		print("here");
-		print (y);
-		print(isEven);
 		if (isEven &&  y!=0) {//link upwards leaning to the right
 			linkTo(0,hexarray[x]);
 			if (x > 0)
@@ -63,7 +67,6 @@ class Hexagon : MonoBehaviour {
 			if (x < xdim -1) 
 				linkTo(0,hexarray[x+1]);
 		}
-		print("stuff that is broken");
 		
 		if (y == ydim-1)
 			if ((isEven && x == xdim-1) || (!isEven && x == 0))
@@ -92,6 +95,21 @@ class Hexagon : MonoBehaviour {
 		}
 		//populate array here
 		if (isEven) {
+			if (x > 0)
+				hexarray[x-1] = buffer;
+			else
+				hexarray[x] = buffer;
+		}
+		else {
+			if (x == xdim-1)
+				hexarray[x] = buffer;
+			else
+				hexarray[x+1];
+		
+		}
+		buffer = this;
+		
+		if (isEven) {
 			if (x == xdim-1) {
 				next.init(x,y+1);
 				return;
@@ -105,6 +123,10 @@ class Hexagon : MonoBehaviour {
 		}
 		next.init(x-1,y);
 		return;
+	}
+	void Awake () {
+		for (int i = 0; i < 6; ++i)
+			triangles[i] = new triangle;
 	}
 	void Start () {
 		if (!begun) {
