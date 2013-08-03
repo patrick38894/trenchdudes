@@ -11,12 +11,12 @@ public class IOManager : MonoBehaviour {
 	protected static List<Unit> allUnits; //list of all units
 	protected static List<Unit> selectedUnits; //list of selected units
 	protected static bool selectionLock = false;
-	protected static bool awaitingOrders = false;
 	protected static string currentInstruction = "zilch" ; //units will take a string as an order
 	protected static int HUDONYAxis; //not a real const because of window resizing - the line where the HUD meets the viewport
 	protected static Vector3 startClick = - Vector3.one; //the start of the selectionbox -vector3.one is the null
 	public float cameraSpeed = 10;
 	public float cameraScrollSpeed = 25;
+	public int cameraEdgePixels = 10;
 
 	protected HUD hud; //this guy processes all the button stuff
 
@@ -31,7 +31,7 @@ public class IOManager : MonoBehaviour {
 	void Update () {
 		HUDONYAxis = Screen.height / 4;
 		if (Input.GetMouseButtonDown(0)) {
-			if (awaitingOrders) { //find the target and send it as an arg to the selected units
+			if (selectionLock) { //find the target and send it as an arg to the selected units
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				RaycastHit hit;
 				if (Physics.Raycast(ray, out hit, 100))
@@ -39,13 +39,13 @@ public class IOManager : MonoBehaviour {
 
 
 			}
-			else if (!selectionLock) {
+			else {
 			//do selcetion box stuff
 				if (Input.mousePosition.y > HUDONYAxis)
 					startClick = Input.mousePosition;
 			}
 		}
-		else if (Input.GetMouseButton(0) && startClick != -Vector3.one) {
+		if (Input.GetMouseButton(0) && startClick != -Vector3.one) {
 			selectionBox = new Rect(startClick.x, invert(startClick.y), Input.mousePosition.x - startClick.x, invert(Input.mousePosition.y) - invert(startClick.y));
 			if (selectionBox.width < 0) {
 				selectionBox.x += selectionBox.width;
@@ -60,8 +60,25 @@ public class IOManager : MonoBehaviour {
 		}
 		else if (Input.GetMouseButtonUp(0)) {
 			startClick = -Vector3.one;
-			updateSelection();
+			Unit temp = null;
+			if (Input.mousePosition.y > HUDONYAxis) {
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+				RaycastHit hit;
+				if (Physics.Raycast(ray, out hit, 100))
+					temp = hit.transform.GetComponent<Unit>();
+			}
+			updateSelection(temp);
+					
 		}
+		if (Input.GetMouseButtonDown(1)) {
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+				RaycastHit hit;
+				if (Physics.Raycast(ray, out hit, 100)) {
+					processOrder("move");
+					sendOrder(hit.transform);
+			}
+		}
+		
 		//color the units
 		foreach (Unit dude in allUnits)
 			dude.renderer.material.color = Color.blue;
@@ -82,9 +99,11 @@ public class IOManager : MonoBehaviour {
 		allUnits.Add(newUnit);
 	}
 
-	protected void updateSelection() {
+	protected void updateSelection(Unit clickedOn) {
 		if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift))
 			selectedUnits.Clear();
+		if (clickedOn != null)
+			selectedUnits.Add(clickedOn);
 		foreach (Unit dude in allUnits) {
 			Vector3 camPos = Camera.mainCamera.WorldToScreenPoint(dude.transform.position);
 			camPos.y = invert(camPos.y);
@@ -113,7 +132,6 @@ public class IOManager : MonoBehaviour {
 			}
 		}
 		selectionLock = true; //lock selection to allow player to click the target of the order
-		awaitingOrders = true;
 	}
 
 	protected static void sendOrder (Transform target) {
@@ -121,7 +139,6 @@ public class IOManager : MonoBehaviour {
 			dude.recieveOrder(currentInstruction, target);
 		}
 		selectionLock = false;
-		awaitingOrders = false;
 		currentInstruction = "zilch";
 	}
 
@@ -147,6 +164,14 @@ public class IOManager : MonoBehaviour {
 		float xAxisValue = Input.GetAxis("Horizontal");
 	    float zAxisValue = Input.GetAxis("Vertical");
 	    Vector3 pos =transform.position;
+		if (Input.mousePosition.y < cameraEdgePixels && Input.mousePosition.y > -cameraEdgePixels)
+			pos.z -= Time.deltaTime * cameraSpeed;
+		else if (Input.mousePosition.y > Screen.height - cameraEdgePixels && Input.mousePosition.y < Screen.height + cameraEdgePixels)
+			pos.z += Time.deltaTime * cameraSpeed;
+		if (Input.mousePosition.x < cameraEdgePixels && Input.mousePosition.x > -cameraEdgePixels)
+			pos.x -= Time.deltaTime * cameraSpeed;
+		else if (Input.mousePosition.x > Screen.width - cameraEdgePixels && Input.mousePosition.x < Screen.width + cameraEdgePixels)
+			pos.x += Time.deltaTime * cameraSpeed;
 		pos.x += Time.deltaTime * xAxisValue * cameraSpeed;
 		pos.z += Time.deltaTime * zAxisValue * cameraSpeed;
 		if (Input.GetAxis("Mouse ScrollWheel") > 0)

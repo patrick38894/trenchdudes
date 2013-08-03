@@ -137,13 +137,15 @@ class Hexagon : MonoBehaviour {
 		return;
 	}
 	void Awake () {
+		System.Random random = new System.Random();
 		if (triangleMesh == null)
 			triangleMesh = GameObject.Find("Triangle");
 		Color temp = triangleMesh.renderer.material.color;
-		temp.a = 0f;
-		triangleMesh.renderer.material.color = temp;
+		//temp.a = 0f;
+		triangleMesh.renderer.material.color = Color.green;
 		for (int i = 0; i < 6; ++i) {
 			triangles[i] = new Triangle();
+			triangles[i].terrain = random.Next(0, int.MaxValue);
 			Vector3 position = transform.position;
 			//position.x -= (float) (sideLength /sqrt3 * Math.Cos(60));
 			//position.z += (float) (sideLength / sqrt3 * Math.Sin(30 * i +15));
@@ -154,6 +156,12 @@ class Hexagon : MonoBehaviour {
 			position.x += (float) (Math.Sin (Math.PI * (i+0.5) /3) / sqrt3);
 			position.y += 0.05f;
 			triangles[i].transform.position = position;
+			triangles[i].transform.GetComponent<TrianglePointer>().triangle = triangles[i];
+			
+			if ((triangles[i].terrain & 3) == 3)
+				triangles[i].transform.renderer.material.color = Color.black;
+			else
+				triangleMesh.renderer.material.color = Color.green;
 		}
 	}
 	void Start () {
