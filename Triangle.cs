@@ -12,7 +12,7 @@ public class Triangle {
 	public short visitState; // 0: unvisited, 1: visited, 2: on closed list, 4: impassable, 8: other
 	public Transform transform;
 	List<Edge> adjacent = new List<Edge> ();
-	protected static RedBlackTree perimeter = new RedBlackTree();
+	protected static AATree<float,Triangle> perimeter = new AATree<float,Triangle>();
 	
 	class TerrainType {
 		public static int passable = 1;
@@ -44,7 +44,7 @@ public class Triangle {
 		visitState = 1;
 		foreach (Edge current in adjacent) {
 			if ((current.dest.visitState != 1) && (current.distance == Hexagon.diamond))
-				perimeter.insert(current.dest);
+				perimeter.Add(current.dest.f, current.dest);
 		}
 		
 		Triangle t;
@@ -62,26 +62,18 @@ public class Triangle {
 		return 1; //for now	
 	}
 	
-	public Triangle AStar () {
-		Triangle temp = setgf();
-		if (temp != null)
-			return temp;
-		adjacent.Sort(compareFValues);
-		foreach (Edge current in adjacent)
-			current.dest.checkShortcuts();
-		
-		
-		
+	public Triangle path(Triangle dest) {
+		reset();
+		dest.setHeuristics(0);
+		return AStar();
 	}
 	
-	
-	public Triangle setgf() {
-		//visitState = 2; //g = f = 0
+	protected Triangle AStar () {
 		if (heuristic == 0)
 			return this;
 		foreach (Edge current in adjacent) {
 			if (current.dest.visitState == 0) {
-				if (current.dest.terrain & TerrainType.passable != TerrainType.passable) {
+				if ((current.dest.terrain & TerrainType.passable) != TerrainType.passable) {
 					current.dest.visitState = 4;
 					continue;
 				}
@@ -92,38 +84,27 @@ public class Triangle {
 			}
 		}
 		
-		adjacent.Sort(compareFValues);
+		
 		foreach (Edge current in adjacent) {
-			current.dest.checkShortcuts();
-			Triangle temp = current.dest.setgf();
-			if (temp != null)
-					return temp;
+			perimeter.Add(current.dest.f, current.dest);
+		}
+		
+		Triangle temp, temp2;
+		
+		while ((temp = perimeter.pop()) != null) {
+				temp.checkShortcuts();
+				if ((temp2 = temp.AStar()) != null)
+					return temp2;
 		}
 		return null;
 	}
-	
-	public static int compareFValues(Edge a, Edge b) {
-		if (a == null || a.dest == null) {
-			if (b == null || b.dest == null)
-				return 0;
-			else
-				return -1;
-		}
-		else {
-			if (b == null || b.dest == null)
-				return 1;
-			else {
-				if (a.dest.f > b.dest.f)
-					return 1;
-				else
-					return -1;
-			}
-		}
-	}
+
 	
 	public void reset() {
 		visitState = 8;
 		foreach (Edge current in adjacent) {
+			if (current == null || current.dest == null)
+				Debug.Log ("null error");
 			if (current.dest.visitState != 8)
 				current.dest.reset();
 		}

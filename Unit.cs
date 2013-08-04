@@ -50,9 +50,29 @@ public class Unit : MonoBehaviour {
 	}
 
 	public void recieveOrder(string order, Transform target) {
+		//TODO set current position upon spawn. this will do for now however
+		if (currentPosition == null) {
+			actionQueue.enqueue(order, target);
+			return;
+		}
+		
+		TrianglePointer p = target.GetComponent<TrianglePointer>();
 		if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift))
 			actionQueue.nuke();
-		actionQueue.enqueue(order, target);
+		if (p != null) {
+			Triangle destination = p.triangle;
+			if (destination == null) {
+				print ("triangle object does not point to the graph");
+				return;
+			}
+			destination = currentPosition.path(destination);
+			while (destination != currentPosition) {
+				actionQueue.enqueue(order, destination.transform);
+				destination = destination.parent;
+			}
+		}
+		else
+			actionQueue.enqueue(order, target);
 	}
 
 	protected void updateAction() {

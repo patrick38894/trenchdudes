@@ -1,4 +1,4 @@
-using UnityEngine;
+/*using UnityEngine;
 using System.Collections;
 
 
@@ -51,15 +51,7 @@ public class RedBlackTree {
 		else
 			root = new Node(newData);
 	}
-		
-	protected void insertCase1(Node n) {
-	//this function is called on any node immediately after insertion
- 
-		if (n.parent == null)
-			n.color = BLACK;
-		else
-			insertCase2(n);
-	}
+
 	
 	protected Node uncle(Node n) {
 		Node g = grandparent(n);
@@ -77,8 +69,24 @@ public class RedBlackTree {
 		else
 			return null;
 	}
-
+	
+	protected Node sibling(Node n) {
+		if (n == n.parent.left)
+			return n.parent.right;
+		else
+			return n.parent.left;
+	}
+	
+	
+	protected void insertCase1(Node n) {
+	//this function is called on any node immediately after insertion
  
+		if (n.parent == null)
+			n.color = BLACK;
+		else
+			insertCase2(n);
+	}
+	
 	protected void insertCase2(Node n) {
 		if (n.parent.color == BLACK)
 			return;
@@ -148,73 +156,100 @@ public class RedBlackTree {
 		n.parent = temp;
 	}
 	
-	protected Triangle pop(Node head) {	
-		if (head == null)
-			return null;
-		if (head.left == null) {
-			//we have reached the smallest item
-			Triangle temp = head.data;
-			if (head.right != null) {
-					//head must be black && head.right must have no children
-					head.parent.left = head.right;
-					head.right.color = BLACK;
-			}
-			else {
-				if (head.color == RED)
-					head.parent.left = null;
-				else {
-					Node p = head.parent;
-					Node s = p.right;
-					if (s.color == RED) {
-						//there must be exactly 2 black children
-						//with no more than 2 children each
-						p.left = null;
-						rotationOn(p);
-						p.color = RED; 
-						s.color = BLACK;
-					}
-					else {
-						if (s.left != null) {
-							Node sl = s.left;
-							sl.parent = grandparent(head);
-							s.left = head.parent;
-							head.parent.parent = sl;
-							head.parent.left = null;
-							sl.right = s;
-							s.parent = sl;
-							head.parent.color = BLACK;
-						}
-						else if (s.right != null) {
-							g = grandparent(head);
-							g.left = s;
-							s.parent = g;
-							s.left = p;
-							p.parent = s;
-							p.left = null;
-							p.color = BLACK;
-							s.color = RED;
-							s.right.color = BLACK;
-						}
-						else {
-							p.color = BLACK;
-							s.color = RED;
-							p.left = null;
-						}
-					}
-				}
-							
-							
-					}
-				head.parent.left = null;
-				
-				
-				
-			return temp;
-		}
-		return pop(head.left);
+	void replaceNode(Node a, Node b) {
+		b.parent = a.parent	
 	}
 	
-	public Triangle pop() {
-		return pop(root);
+	protected void deleteOneChild(Node n) {
+		if (n == null)
+			return;
+		Node child;
+		if (n.right == null)
+			child = n.left;
+		else
+			child = n.right;
+		replaceNode(n, child);
+		if (n.color == BLACK) {
+			if (child.color == RED) 
+				child.color = BLACK;
+			else
+				deleteCase1(child);
+		}
 	}
-}
+	
+	
+	
+	
+	*/
+	
+	
+//	protected Triangle pop(Node head) {	
+//		if (head == null)
+//			return null;
+//		if (head.left == null) {
+//			//we have reached the smallest item
+//			Triangle temp = head.data;
+//			if (head.right != null) {
+//					//head must be black && head.right must have no children
+//					head.parent.left = head.right;
+//					head.color = head.color;
+//			}
+//			else {
+//				if (head.color == RED)
+//					head.parent.left = null;
+//				else {
+//					Node p = head.parent;
+//					Node s = p.right;
+//					if (s.color == RED) {
+//						//there must be exactly 2 black children
+//						//with no more than 2 children each
+//						p.left = null;
+//						rotationOn(p);
+//						p.color = RED; 
+//						s.color = BLACK;
+//					}
+//					else {
+//						if (s.left != null) {
+//							Node sl = s.left;
+//							sl.parent = grandparent(head);
+//							s.left = head.parent;
+//							head.parent.parent = sl;
+//							head.parent.left = null;
+//							sl.right = s;
+//							s.parent = sl;
+//							head.parent.color = BLACK;
+//						}
+//						else if (s.right != null) {
+//							g = grandparent(head);
+//							g.left = s;
+//							s.parent = g;
+//							s.left = p;
+//							p.parent = s;
+//							p.left = null;
+//							p.color = BLACK;
+//							s.color = RED;
+//							s.right.color = BLACK;
+//						}
+//						else {
+//							p.color = BLACK;
+//							s.color = RED;
+//							p.left = null;
+//						}
+//					}
+//				}
+//							
+//							
+//					}
+//				head.parent.left = null;
+//				
+//				
+//				
+//			return temp;
+//		}
+//		return pop(head.left);
+//	}
+	
+//	public Triangle pop() {
+//		return pop(root);
+	//}
+//}

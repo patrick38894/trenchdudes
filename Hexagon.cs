@@ -147,8 +147,6 @@ class Hexagon : MonoBehaviour {
 			triangles[i] = new Triangle();
 			triangles[i].terrain = random.Next(0, int.MaxValue);
 			Vector3 position = transform.position;
-			//position.x -= (float) (sideLength /sqrt3 * Math.Cos(60));
-			//position.z += (float) (sideLength / sqrt3 * Math.Sin(30 * i +15));
 			triangles[i].transform = Instantiate(triangleMesh.transform, position, Quaternion.identity) as Transform;
 			triangles[i].transform.Rotate(Vector3.up, 60 * (i+1));
 			position = triangles[i].transform.position;
