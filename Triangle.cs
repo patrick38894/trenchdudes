@@ -39,23 +39,20 @@ public class Triangle {
 	
 	
 	public void setHeuristics(int num) {
-		g = 0;
-		f = heuristic = num;
+		f = g = 0;
+		heuristic = num;
 		visitState = 1;
 		foreach (Edge current in adjacent) {
 			if ((current.dest.visitState != 1) && (current.distance == Hexagon.diamond))
-				perimeter.Add(current.dest.f, current.dest);
+				perimeter.Add(heuristic, current.dest);
+				current.dest.visitState = 1;
 		}
 		
-		Triangle t;
-		do {
-			t = perimeter.pop();
-			if (t != null)
-				t.setHeuristics(num+1);
-		} while (t != null);
-		
-		visitState = 0;
-		f = 0;
+		Triangle t = perimeter.pop ();
+		while (t != null) {
+			t.setHeuristics(num +1);
+			t = perimeter.pop ();
+		}
 	}
 	
 	public static int terrainCost(int start, int end) {
@@ -64,6 +61,7 @@ public class Triangle {
 	
 	public Triangle path(Triangle dest) {
 		reset();
+		reset2 ();
 		dest.setHeuristics(0);
 		return AStar();
 	}
@@ -108,9 +106,17 @@ public class Triangle {
 			if (current.dest.visitState != 8)
 				current.dest.reset();
 		}
-		visitState = 0;
 	}
 			
+	public void reset2() {
+		visitState = 0;
+		foreach (Edge current in adjacent) {
+			if (current == null || current.dest == null)
+				Debug.Log ("null error");
+			if (current.dest.visitState != 0)
+				current.dest.reset();
+		}
+	}
 			
 	public void checkShortcuts() {
 		visitState = 2;
