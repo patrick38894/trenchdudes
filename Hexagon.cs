@@ -59,15 +59,22 @@ class Hexagon : MonoBehaviour {
 		Vector3 position = transform.position;
 		Quaternion rotation = transform.rotation;
 		bool isEven = (y%2 ==0);
+		linkIn ();
 		if (isEven &&  y!=0) {//link upwards leaning to the right
-			linkTo(0,hexarray[x]);
-			if (x > 0)
+			if (x != 0) {
+				linkTo(0,hexarray[x]);
 				linkTo(5,hexarray[x-1]);
+			}
+			else
+				linkTo(0,buffer);
 		}
 		else if (! isEven) {
-			linkTo(5,hexarray[x]);
-			if (x < xdim -1) 
+			if (x != xdim -1) { 
 				linkTo(0,hexarray[x+1]);
+				linkTo(5,hexarray[x]);
+			}
+			else
+				linkTo(5,buffer);
 		}
 		
 		if (y == ydim-1)

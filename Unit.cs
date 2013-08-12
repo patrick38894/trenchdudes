@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Unit : MonoBehaviour {
 	public int speed = 5;
@@ -65,10 +66,20 @@ public class Unit : MonoBehaviour {
 				print ("triangle object does not point to the graph");
 				return;
 			}
-			destination = currentPosition.path(destination);
-			while (destination != currentPosition) {
-				actionQueue.enqueue(order, destination.transform);
-				destination = destination.parent;
+			Triangle tail = currentPosition.path(destination);
+			tail.transform.renderer.material.color = Color.white;
+			//destination = Triangle.orderFlip(destination);
+			Stack<Triangle> orders = new Stack<Triangle>();
+			Triangle.orderFlip(tail, ref orders);
+			Triangle head = orders.Pop();
+			Debug.Log ("stack count is " + orders.Count);
+			while (head != null) {
+				Debug.Log("good destination");
+				head.setColor(Color.cyan);
+				actionQueue.enqueue(order, head.transform);
+				if (orders.Count == 0)
+					break;
+				head = orders.Pop();
 			}
 		}
 		else
